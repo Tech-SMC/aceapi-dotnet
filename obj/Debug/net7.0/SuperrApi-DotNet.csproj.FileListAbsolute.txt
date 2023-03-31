@@ -1,0 +1,15 @@
+/Users/dazzling420/middleware/SuperrApi-DotNet/bin/Debug/net7.0/SuperrApi-DotNet
+/Users/dazzling420/middleware/SuperrApi-DotNet/bin/Debug/net7.0/SuperrApi-DotNet.deps.json
+/Users/dazzling420/middleware/SuperrApi-DotNet/bin/Debug/net7.0/SuperrApi-DotNet.runtimeconfig.json
+/Users/dazzling420/middleware/SuperrApi-DotNet/bin/Debug/net7.0/SuperrApi-DotNet.dll
+/Users/dazzling420/middleware/SuperrApi-DotNet/bin/Debug/net7.0/SuperrApi-DotNet.pdb
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.csproj.AssemblyReference.cache
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.GeneratedMSBuildEditorConfig.editorconfig
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.AssemblyInfoInputs.cache
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.AssemblyInfo.cs
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.csproj.CoreCompileInputs.cache
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.dll
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/refint/SuperrApi-DotNet.dll
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.pdb
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/SuperrApi-DotNet.genruntimeconfig.cache
+/Users/dazzling420/middleware/SuperrApi-DotNet/obj/Debug/net7.0/ref/SuperrApi-DotNet.dll
