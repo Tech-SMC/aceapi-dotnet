@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SuperrApiConnect
 {
@@ -18,17 +19,20 @@ namespace SuperrApiConnect
         private int _cancelAfter;
         CancellationTokenSource cTs = new CancellationTokenSource();
 
-        public WebSocket(string ApiKey, string access_token, string UserId, int bufferLength) {
+        public WebSocket(string ApiKey, string access_token, string UserId, int bufferLength, int cancelTimeInSeconds) {
             WSUrl = string.Format("{0}?api_key={1}&request_token={2}", WSRootUrl, ApiKey, access_token);
             _userID = UserId;
             _authToken = access_token;
             _buffer = bufferLength;
+            SetCancellationTimeInSeconds(cancelTimeInSeconds);
+            Connect().Wait();
         }
 
         public void SetCancellationTimeInSeconds(int duration) {
             string eod = "23:59:59.9999999";
             DateTime time = DateTime.Parse(eod);
-            int timeDiff = (time - DateTime.Now).Seconds;
+            TimeSpan timeSpan = (time - DateTime.Now);
+            int timeDiff = (timeSpan.Hours*3600) + (timeSpan.Minutes*60) + timeSpan.Seconds;
             if(duration > timeDiff) {
                 Console.WriteLine("The duration provided is greater than today EOD, hence setting it todays EOD.");
                 _cancelAfter = timeDiff;
@@ -82,17 +86,15 @@ namespace SuperrApiConnect
         // }
 
         public async Task Connect() {
-            using( client = new ClientWebSocket())
+            client = new ClientWebSocket();
+            Uri WSUriUrl = new Uri(WSUrl);
+            cTs.CancelAfter(TimeSpan.FromSeconds(_cancelAfter));
+            try
             {
-                Uri WSUriUrl = new Uri(WSUrl);
-                cTs.CancelAfter(TimeSpan.FromSeconds(_cancelAfter));
-                try
-                {
-                    await client.ConnectAsync(WSUriUrl, cTs.Token);
-                }
-                catch(Exception e) {
-                    Console.WriteLine("Exception caugnt in connecting WebSocket. Message ::" + e.Message);
-                }
+                await client.ConnectAsync(WSUriUrl, cTs.Token);
+            }
+            catch(Exception e) {
+                Console.WriteLine("Exception caugnt in connecting WebSocket. Message ::" + e.Message);
             }
             
             Console.WriteLine("WebSocket Connected!!");
@@ -136,30 +138,35 @@ namespace SuperrApiConnect
         public void Subscribe(string[] Tokens, UInt32 Mode) {
             WSSubscribeRequest subscribeRequest = GetBasicRequestStructure();
             subscribeRequest.scripId = new SCRIPID[Tokens.Length];    
+            WSSubscribeRequest currentSubscribeRequest = subscribeRequest;
             for(int i=0; i<Tokens.Length; i++) {
                 try
-                {
-                    WSSubscribeRequest currentSubscribeRequest = subscribeRequest;
-                    currentSubscribeRequest.ScripCount = (byte)1;
+                {                    
+                    currentSubscribeRequest.ScripCount = (byte)Tokens.Length;
                     currentSubscribeRequest.ExchSeg = GetExchangeCode(Tokens[i].Split(':')[0].Trim());
                     currentSubscribeRequest.scripId[i] = new SCRIPID(Tokens[i].Split(':')[1].Trim());
                     currentSubscribeRequest.bHeader.iRequestCode = (byte)Mode;
-                    
-                    ArraySegment<byte> byteToSend = new ArraySegment<byte>(Utils.StructToBytes(currentSubscribeRequest, currentSubscribeRequest.bHeader.iMsgLength));
-                    if(IsConnected())
-                        client.SendAsync(byteToSend, WebSocketMessageType.Text, true, cTs.Token);
                 } catch(Exception e) {
                     Console.WriteLine("Exception in struct formation. Message ::" + e.Message);
                 }
             }
-            ReceiveTicks();
+            ArraySegment<byte> byteToSend = new ArraySegment<byte>(Utils.StructToBytes(currentSubscribeRequest, currentSubscribeRequest.bHeader.iMsgLength));
+            if(IsConnected())
+                client.SendAsync(byteToSend, WebSocketMessageType.Text, true, cTs.Token).Wait();
+            ReceiveTicks().Wait();
         }
 
         private async Task ReceiveTicks() {
             byte[] buffer = new byte[_buffer];
-            while(true) {
+            while(client.State == WebSocketState.Open) {
                 ArraySegment<byte> byteReceived = new ArraySegment<byte>(buffer, 0, _buffer);
-                //WebSocketReceiveResult response = await client.ReceiveAsync(byteReceived, cTs.Token);
+                WebSocketReceiveResult response = await client.ReceiveAsync(byteReceived, cTs.Token);
+                if (response.MessageType == WebSocketMessageType.Close)
+                {
+                    await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+                } else {
+                    string receivedMessage = Encoding.UTF8.GetString(buffer, 0, response.Count);
+                }
                 ProcessDataReceived(buffer);
             }
         }
@@ -168,20 +175,23 @@ namespace SuperrApiConnect
         {
             WSResponseHeader wsResponseHeader = Utils.ByteArrayToStructure<WSResponseHeader>(buffer, Constants.RESPONSE_HEADER_SIZE);
             switch(wsResponseHeader.MsgCode.ToString()) {
-                case "29":
+                case Constants.RESP_MKT_STATUS:
                     ReadMarketStatusData(buffer, wsResponseHeader);
                     break;
-                case "61":
+                case Constants.RESP_LTP:
                     ReadLTPMode(buffer, wsResponseHeader);
                     break;
-                case "62":
+                case Constants.RESP_QUOTE:
                     ReadQUOTEMode(buffer, wsResponseHeader);
                     break;
-                case "63":
+                case Constants.RESP_FULL:
                     ReadFULLMode(buffer, wsResponseHeader);
                     break;
-                case "65":
+                case Constants.RESP_IDX_QUOTE:
                     ReadIDXQUOTEMode(buffer, wsResponseHeader);
+                    break;
+                case Constants.RESP_IDX_FULL:
+                    ReadIDXFULLMode(buffer, wsResponseHeader);
                     break;
                 default:
                     Console.WriteLine("incorrect Message Code (" + wsResponseHeader.MsgCode.ToString() + ") Received");
@@ -301,7 +311,7 @@ namespace SuperrApiConnect
 
         private void ReadIDXQUOTEMode(byte[] buffer, WSResponseHeader wsResponseHeader) {
             WSIndexQuoteResponse response = Utils.ByteArrayToStructure<WSIndexQuoteResponse>(buffer, wsResponseHeader.MsgLength);
-            Console.WriteLine("Quote_Mode ::\n" + 
+            Console.WriteLine("IDX_QUOTE_MODE ::\n" + 
                                 "{\"bHeader\" : " + 
                                     "{\"ExchSeg\" : \"" + wsResponseHeader.ExchSeg.ToString() + "\", " +
                                     "\"MsgLength\" : " + wsResponseHeader.MsgLength + ", " +
@@ -320,6 +330,29 @@ namespace SuperrApiConnect
                                 "\"fchange\" : " + response.fchange + ", " +
                                 "\"f52WKHigh\" : " + response.f52WKHigh + ", " +
                                 "\"f52WKLow\" : " + response.f52WKLow + "}");
+            return;
+        }
+
+        private void ReadIDXFULLMode(byte[] buffer, WSResponseHeader wsResponseHeader) {
+            WSIndexFullModeResponse response = Utils.ByteArrayToStructure<WSIndexFullModeResponse>(buffer, wsResponseHeader.MsgLength);
+            Console.WriteLine("IDX_FULL_MODE ::\n" + 
+                                "{\"bHeader\" : " + 
+                                    "{\"ExchSeg\" : \"" + wsResponseHeader.ExchSeg.ToString() + "\", " +
+                                    "\"MsgLength\" : " + wsResponseHeader.MsgLength + ", " +
+                                    "\"MsgCode\" : \"" + wsResponseHeader.MsgCode.ToString() + "\", " +
+                                    "\"ScripId\" : " + wsResponseHeader.ScripId + 
+                                    "}, " +
+                                 "\"LTP\" : " + response.LTP + ", " +
+                                  "\"iSecId\" : " + response.iSecId + ", " +
+                                "\"traded\" : \"" + response.traded.ToString() + "\", " +
+                                "\"mode\" : \"" + response.mode.ToString() + "\", " +
+                                "\"fOpen\" : " + response.fOpen + ", " +
+                                "\"fClose\" : " + response.fClose + ", " +
+                                "\"fHigh\" : " + response.fHigh + ", " +
+                                "\"fLow\" : " + response.fLow + ", " +
+                                "\"fperChange\" : " + response.fperChange + ", " +
+                                "\"fchange\" : " + response.fchange + ", " +
+                                "\"LTT\" : " + response.LTT + "}");
             return;
         }
     }

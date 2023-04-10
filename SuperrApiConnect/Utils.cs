@@ -4,12 +4,26 @@ using System.Globalization;
 using System.Collections;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
+using System;
 
 namespace SuperrApiConnect
 {
     public class Utils
     {
         public static string SendHttpRequest(string requestType, string url, dynamic RequestParams = null, Dictionary<string, string> additionalHeaders = null, dynamic UrlParams = null) {
+            if(url.Contains("{") && RequestParams != null) {
+                var routeParams = (RequestParams as Dictionary<string, dynamic>).ToDictionary(entry => entry.Key, entry => entry.Value);
+                foreach (KeyValuePair<string, dynamic> item in  routeParams) {
+                    if(url.Contains("{" + item.Key + "}")) {
+                        if(item.Key == "variety") {
+                            url = url.Replace("{" + item.Key + "}", (string)item.Value.ToLower().Trim());
+                        } else {
+                            url = url.Replace("{" + item.Key + "}", (string)item.Value);
+                        }
+                        RequestParams.Remove(item.Key);
+                    }
+                }
+            }
             requestType = requestType.ToUpper().Trim();
             string response = "";
             using var client = new HttpClient();
@@ -18,14 +32,24 @@ namespace SuperrApiConnect
                     client.DefaultRequestHeaders.Add(entry.Key, entry.Value);
                 }
             }
+            string JsonData = "";
+            StringContent RequestData;
             switch(requestType) {
                 case "GET" :
                     response = GetRequest(client, url).Result;
                     break;
                 case "POST" :
-                    string JsonData = JsonSerializer.Serialize(RequestParams);
-                    StringContent RequestData = new StringContent(JsonData, Encoding.UTF8, "application/json");
+                    JsonData = JsonSerializer.Serialize(RequestParams);
+                    RequestData = new StringContent(JsonData, Encoding.UTF8, "application/json");
                     response = PostRequest(client, url, RequestData).Result;
+                    break;
+                case "PUT" :
+                    JsonData = JsonSerializer.Serialize(RequestParams);
+                    RequestData = new StringContent(JsonData, Encoding.UTF8, "application/json");
+                    response = PutRequest(client, url, RequestData).Result;
+                    break;
+                case "DELETE":
+                    response = DeleteRequest(client, url).Result;
                     break;
                 default :
                     Console.WriteLine("The RequestType \"" + requestType + "\" made on url " + url + " is inappropriate");
@@ -39,14 +63,29 @@ namespace SuperrApiConnect
             return httpResponseMessage.Content.ReadAsStringAsync().Result;
         }
 
+        private static async Task<string> PutRequest(HttpClient client, string url, StringContent data) {
+            var httpResponseMessage = await client.PutAsync(url, data);
+            return httpResponseMessage.Content.ReadAsStringAsync().Result;
+        }
+
         private static async Task<string> GetRequest(HttpClient client, string url) {
             return await client.GetStringAsync(url);
         }
 
+        private static async Task<string> DeleteRequest(HttpClient client, string url) {
+            var httpResponseMessage = await client.DeleteAsync(url);
+            return httpResponseMessage.Content.ReadAsStringAsync().Result;
+        }
+
         public static Dictionary<string, dynamic> JsonDeserialize(string JsonData) {
-            JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(JsonData);
-            Dictionary<string, dynamic> json2Dictionary = JsonElementToDictionary(jsonElement);
-            return json2Dictionary;
+            try {
+                    JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(JsonData);
+                    Dictionary<string, dynamic> json2Dictionary = JsonElementToDictionary(jsonElement);
+                    return json2Dictionary;
+            } catch (Exception e) {
+                Console.WriteLine("Caught in exception with message ::" + e.Message + " Json Data received is ::" + JsonData);
+            }
+            return null;
         }
 
         private static decimal StringToDecimal(String value)
@@ -132,6 +171,20 @@ namespace SuperrApiConnect
                 ArgumentException ex = new ArgumentException("Error in conversion from ByteArray to Struct.", innerException);
                 throw ex;
             }
+        }
+
+        public static Tuple<string, Dictionary<string, dynamic>> GetRequestUrl(string url, dynamic RequestParams) {
+            if(url.Contains("{") && RequestParams != null) {
+                var routeParams = (RequestParams as Dictionary<string, dynamic>).ToDictionary(entry => entry.Key, entry => entry.Value);
+                foreach (KeyValuePair<string, dynamic> item in  routeParams) {
+                    if(url.Contains("{" + item.Key + "}")) {
+                        url = url.Replace("{" + item.Key + "}", (string)item.Value);
+                        RequestParams.Remove(item.Key);
+                    }
+                }
+
+            }
+            return Tuple.Create(url, RequestParams);
         }
     }
 }
