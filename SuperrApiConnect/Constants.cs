@@ -12,6 +12,20 @@ namespace SuperrApiConnect
 
         // Subscription Modes
         public const UInt32 MODE_LTP = 71;
+        public const UInt32 MODE_QUOTE = 72;
+        public const UInt32 MODE_FULL = 73;
+        public const UInt32 MODE_INDEX_LTP = 74;
+        public const UInt32 MODE_INDEX_QUOTE = 75;
+        public const UInt32 MODE_INDEX_FULL = 76;
+
+        // Response Message Code
+        public const string RESP_LTP = "61";
+        public const string RESP_QUOTE = "62";
+        public const string RESP_FULL = "63";
+        public const string RESP_IDX_LTP = "64";
+        public const string RESP_IDX_QUOTE = "65";
+        public const string RESP_IDX_FULL = "66";
+        public const string RESP_MKT_STATUS = "29";
 
         // Response Structure Sizes
         public const int RESPONSE_HEADER_SIZE = 10;
