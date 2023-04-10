@@ -25,9 +25,8 @@ namespace SuperrApiConnectHelper
             }
 
             ticker = new Ticker(API_Key, API_Secret, UserID, cancelTimeInSeconds: 300);
-            Thread t = new Thread(() => ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536" }, 71));
+            Thread t = new Thread(() => ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536" }, Constants.MODE_LTP));
             t.Start();
-            //ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536" }, 71);
 
             //-----------------------------------------------//
             //------------- Place order Normal---------------//

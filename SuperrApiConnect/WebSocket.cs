@@ -49,42 +49,6 @@ namespace SuperrApiConnect
             return client.State == WebSocketState.Open;
         }
 
-        // public async Task Connect() {
-        //     using(client = new ClientWebSocket())
-        //     {
-        //         Uri WSUriUrl = new Uri(WSUrl);
-        //         cTs.CancelAfter(TimeSpan.FromSeconds(_cancelAfter));
-        //         try {
-        //             await client.ConnectAsync(WSUriUrl, cTs.Token);
-        //             while(client.State == WebSocketState.Open) {
-        //                 Console.WriteLine("Connected to socket");
-        //                 Console.WriteLine("Sending message");
-        //                 WSSubscribeRequest subscribeRequest = GetBasicRequestStructure();
-        //                 subscribeRequest.scripId = new SCRIPID[Tokens.Length];    
-        //                 for(int i=0; i<Tokens.Length; i++) {
-        //                     WSSubscribeRequest currentSubscribeRequest = subscribeRequest;
-        //                     currentSubscribeRequest.ScripCount = (byte)1;
-        //                     currentSubscribeRequest.ExchSeg = GetExchangeCode(Tokens[i].Split(':')[0].Trim());
-        //                     currentSubscribeRequest.scripId[i] = new SCRIPID(Tokens[i].Split(':')[1].Trim());
-        //                     currentSubscribeRequest.bHeader.iRequestCode = (byte)71;
-        //                     ArraySegment<byte> byteToSend = new ArraySegment<byte>(Utils.StructToBytes(currentSubscribeRequest, currentSubscribeRequest.bHeader.iMsgLength));
-        //                     client.SendAsync(byteToSend, WebSocketMessageType.Text, true, cTs.Token);
-        //                     while(true) {
-        //                         var responseBuffer = new byte[1024];
-        //                         var offset =0;
-        //                         var packet = 1024;
-        //                         ArraySegment<byte> byteReceived = new ArraySegment<byte>(responseBuffer, offset, packet);
-        //                         WebSocketReceiveResult response = await client.ReceiveAsync(byteReceived, cTs.Token);
-        //                         ProcessDataReceived(responseBuffer);
-        //                     }
-        //                 }
-        //             }
-        //         } catch (WebSocketException e) {
-        //             Console.WriteLine(e.Message);
-        //         }  
-        //     }
-        // }
-
         public async Task Connect() {
             client = new ClientWebSocket();
             Uri WSUriUrl = new Uri(WSUrl);
