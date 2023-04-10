@@ -8,8 +8,8 @@ namespace SuperrApiConnectHelper
         static Ticker ticker;
 
         // Initialize API_Key and API_Secret
-        static string API_Key = "RyuLDVjtufsk0OAL";
-        static string API_Secret = "tIFgrfYuaFNpsefdWUeDog";
+        static string API_Key = "WSSCFQUHfnTaRTo7";
+        static string API_Secret = "1wmCL5QcTTchX9WOWBiR49";
         static string UserID = "SAU123";
 
 
@@ -25,8 +25,8 @@ namespace SuperrApiConnectHelper
             }
 
             ticker = new Ticker(API_Key, API_Secret, UserID, cancelTimeInSeconds: 300);
-            Thread t = new Thread(() => ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536" }, Constants.MODE_LTP));
-            t.Start();
+            ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536", "NSE_CASH:1594" }, Constants.MODE_LTP);
+            ticker.Subscribe(Tokens: new String[] { "NSE_CASH:3787" }, Constants.MODE_FULL);
 
             //-----------------------------------------------//
             //------------- Place order Normal---------------//

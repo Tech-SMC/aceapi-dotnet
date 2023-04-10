@@ -26,6 +26,8 @@ namespace SuperrApiConnect
             _buffer = bufferLength;
             SetCancellationTimeInSeconds(cancelTimeInSeconds);
             Connect().Wait();
+            Thread t = new Thread(() => ReceiveTicks().Wait());
+            t.Start();
         }
 
         public void SetCancellationTimeInSeconds(int duration) {
@@ -64,10 +66,11 @@ namespace SuperrApiConnect
             Console.WriteLine("WebSocket Connected!!");
         }
 
-        private WSSubscribeRequest GetBasicRequestStructure() {
+        private WSSubscribeRequest GetBasicRequestStructure(UInt32 Mode) {
             WSRequestHeader requestHeader = new WSRequestHeader();
             requestHeader.sClientId = _userID;
             requestHeader.sAuthToken = _authToken;
+            requestHeader.iRequestCode = (byte)Mode;
             
             WSSubscribeRequest subscribeRequest = new WSSubscribeRequest();
             requestHeader.iMsgLength = (ushort)Marshal.SizeOf(subscribeRequest);
@@ -100,24 +103,21 @@ namespace SuperrApiConnect
         }
 
         public void Subscribe(string[] Tokens, UInt32 Mode) {
-            WSSubscribeRequest subscribeRequest = GetBasicRequestStructure();
+            WSSubscribeRequest subscribeRequest = GetBasicRequestStructure(Mode);
             subscribeRequest.scripId = new SCRIPID[Tokens.Length];    
-            WSSubscribeRequest currentSubscribeRequest = subscribeRequest;
             for(int i=0; i<Tokens.Length; i++) {
+                WSSubscribeRequest currentSubscribeRequest = subscribeRequest;
                 try
                 {                    
-                    currentSubscribeRequest.ScripCount = (byte)Tokens.Length;
                     currentSubscribeRequest.ExchSeg = GetExchangeCode(Tokens[i].Split(':')[0].Trim());
-                    currentSubscribeRequest.scripId[i] = new SCRIPID(Tokens[i].Split(':')[1].Trim());
-                    currentSubscribeRequest.bHeader.iRequestCode = (byte)Mode;
+                    currentSubscribeRequest.scripId[0] = new SCRIPID(Tokens[i].Split(':')[1].Trim());
+                    ArraySegment<byte> byteToSend = new ArraySegment<byte>(Utils.StructToBytes(currentSubscribeRequest, currentSubscribeRequest.bHeader.iMsgLength));
+                    if(IsConnected())
+                        client.SendAsync(byteToSend, WebSocketMessageType.Text, true, cTs.Token).Wait();
                 } catch(Exception e) {
                     Console.WriteLine("Exception in struct formation. Message ::" + e.Message);
                 }
             }
-            ArraySegment<byte> byteToSend = new ArraySegment<byte>(Utils.StructToBytes(currentSubscribeRequest, currentSubscribeRequest.bHeader.iMsgLength));
-            if(IsConnected())
-                client.SendAsync(byteToSend, WebSocketMessageType.Text, true, cTs.Token).Wait();
-            ReceiveTicks().Wait();
         }
 
         private async Task ReceiveTicks() {
@@ -242,7 +242,7 @@ namespace SuperrApiConnect
                                     }
                                 }
                                 MBPRow += "]";
-                                Console.WriteLine("Quote_Mode ::\n" + 
+                                Console.WriteLine("FULL_MODE ::\n" +
                                 "{\"bHeader\" : " + 
                                     "{\"ExchSeg\" : \"" + wsResponseHeader.ExchSeg.ToString() + "\", " +
                                     "\"MsgLength\" : " + wsResponseHeader.MsgLength + ", " +
