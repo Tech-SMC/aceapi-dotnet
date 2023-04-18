@@ -6,8 +6,8 @@ namespace SuperrApiConnect
         int _timerTick = 5;
         private int _interval = 5;
         private byte _subscriptionMode;
-        public Ticker(string APIKey, string APISecret, string UserId, int bufferLen = 2000, int cancelTimeInSeconds = 86400) {
-            _ws = new WebSocket(APIKey, APISecret, UserId, bufferLen, cancelTimeInSeconds);
+        public Ticker(string APIKey, string access_token, string UserId, int bufferLen = 2000, int cancelTimeInSeconds = 86400) {
+            _ws = new WebSocket(APIKey, access_token, UserId, bufferLen, cancelTimeInSeconds);
         }
 
         public void SetCancellationTimeInSeconds(int timeInSeconds = Constants.EOD) {

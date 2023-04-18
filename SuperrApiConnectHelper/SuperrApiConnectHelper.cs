@@ -8,9 +8,9 @@ namespace SuperrApiConnectHelper
         static Ticker ticker;
 
         // Initialize API_Key and API_Secret
-        static string API_Key = "WSSCFQUHfnTaRTo7";
-        static string API_Secret = "1wmCL5QcTTchX9WOWBiR49";
-        static string UserID = "SAU123";
+        static string API_Key = "your API_KEY";
+        static string API_Secret = "Your API_Secret";
+        static string UserID = "your User ID";
 
 
         // Main method 
@@ -24,7 +24,7 @@ namespace SuperrApiConnectHelper
                 return;
             }
 
-            ticker = new Ticker(API_Key, API_Secret, UserID, cancelTimeInSeconds: 300);
+            ticker = new Ticker(API_Key, superrApi.GetAccessToken(), UserID, cancelTimeInSeconds: 300);
             ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536", "NSE_CASH:1594" }, Constants.MODE_LTP);
             ticker.Subscribe(Tokens: new String[] { "NSE_CASH:3787" }, Constants.MODE_FULL);
 
