@@ -12,6 +12,10 @@ namespace SuperrApiConnect
          static User _user;
          static Ticker _ticker;
 
+         public string GetAccessToken() {
+            return _accessToken;
+         }
+
          public SuperrApi(string UserID, string Password, string API_Key, string API_Secret) {
             _user = new User(UserID, Password);
             _apiKey = API_Key;
