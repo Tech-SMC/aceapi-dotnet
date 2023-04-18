@@ -65,7 +65,7 @@ namespace SuperrApiConnect
          private string LoginWithAPIKey(string Url) {
             Dictionary<string, dynamic> result = _user.Login(Url);
             if(result["status"] == "success")
-               return result["data"]["request_token"];
+               return result["data"]["token"];
             else
                return "failure:"+result["message"];
          }

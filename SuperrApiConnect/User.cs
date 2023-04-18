@@ -33,7 +33,7 @@ namespace SuperrApiConnect
 
             var DataBody = new Dictionary<string, dynamic> {
                 {"client_id", _userID},
-                {"req_token", request_token},
+                {"token", request_token},
                 {"action", "api-key-validation"},
                 {"otp", otp}
             };
