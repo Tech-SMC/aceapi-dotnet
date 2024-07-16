@@ -2,7 +2,7 @@ using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SuperrApiConnect
+namespace AceApiConnect
 {
     public delegate void OnErrorHandler(string Message);
     public delegate void OnCloseHandler();

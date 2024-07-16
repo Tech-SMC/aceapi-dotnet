@@ -1,10 +1,10 @@
-using SuperrApiConnect;
+using AceApiConnect;
 
-namespace SuperrApiConnectHelper
+namespace AceApiConnectHelper
 {
-    class SuperrApiConnectHelper
+    class AceApiConnectHelper
     {
-        static SuperrApi superrApi;
+        static AceApi aceApi;
         static Ticker ticker;
 
         // Initialize API_Key and API_Secret
@@ -18,20 +18,20 @@ namespace SuperrApiConnectHelper
             Console.WriteLine("Please enter the password for UserID(" + UserID + ") ::");
             string password = Console.ReadLine();
 
-            superrApi = new SuperrApi(UserID, password, API_Key, API_Secret);
-            bool status = superrApi.LoginAndSetAccessToken();
+            aceApi = new AceApi(UserID, password, API_Key, API_Secret);
+            bool status = aceApi.LoginAndSetAccessToken();
             if(!status) {
                 return;
             }
 
-            ticker = new Ticker(API_Key, superrApi.GetAccessToken(), UserID, cancelTimeInSeconds: 300);
+            ticker = new Ticker(API_Key, aceApi.GetAccessToken(), UserID, cancelTimeInSeconds: 300);
             ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536", "NSE_CASH:1594" }, Constants.MODE_LTP);
             ticker.Subscribe(Tokens: new String[] { "NSE_CASH:3787" }, Constants.MODE_FULL);
 
             //-----------------------------------------------//
             //------------- Place order Normal---------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> PlaceOrderResponse =  superrApi.PlaceOrder(
+            Dictionary<string, dynamic> PlaceOrderResponse =  aceApi.PlaceOrder(
                 variety: "NORMAL",
                 action: "BUY",
                 exchange: "NSE",
@@ -57,7 +57,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //---------- Modify Order Normal-----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> ModifyOrderResponse =  superrApi.ModifyOrder(
+            Dictionary<string, dynamic> ModifyOrderResponse =  aceApi.ModifyOrder(
                 order_id: PlaceOrderResponse["data"]["order_id"],
                 variety: "NORMAL",
                 exchange: "NSE",
@@ -81,7 +81,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //--------------Cancel Order Normal--------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> CancelOrderResponse = superrApi.CancelOrder(
+            Dictionary<string, dynamic> CancelOrderResponse = aceApi.CancelOrder(
                 variety: "NORMAL",
                 order_id: PlaceOrderResponse["data"]["order_id"]
             );
@@ -95,7 +95,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //------------------Fund Details-----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> FundDetailsResponse = superrApi.FundDetails();
+            Dictionary<string, dynamic> FundDetailsResponse = aceApi.FundDetails();
 
             if(FundDetailsResponse["status"] == "success") {    
                 var size = FundDetailsResponse["data"].Count;
@@ -118,7 +118,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //----------------Holding Details----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> HoldingDetailsResponse = superrApi.HoldingDetails();
+            Dictionary<string, dynamic> HoldingDetailsResponse = aceApi.HoldingDetails();
             
             if(HoldingDetailsResponse["status"] == "success") {
                 var size = HoldingDetailsResponse["data"].Count;
@@ -153,7 +153,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //----------------Position Details---------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> PositionDetailsResponse = superrApi.PositionDetails();
+            Dictionary<string, dynamic> PositionDetailsResponse = aceApi.PositionDetails();
 
             if(PositionDetailsResponse["status"] == "success") {
                 var size = PositionDetailsResponse["data"].Count;
@@ -188,7 +188,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //--------------------Order Book-----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> OrderBookResponse = superrApi.OrderBook();
+            Dictionary<string, dynamic> OrderBookResponse = aceApi.OrderBook();
 
             if(OrderBookResponse["status"] == "success") {
                 var size = OrderBookResponse["data"].Count;
@@ -223,7 +223,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //--------------------Trade Book-----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> TradeBookResponse = superrApi.TradeBook();
+            Dictionary<string, dynamic> TradeBookResponse = aceApi.TradeBook();
 
             if(TradeBookResponse["status"] == "success") {
                 var size = TradeBookResponse["data"].Count;
@@ -258,7 +258,7 @@ namespace SuperrApiConnectHelper
             //-----------------------------------------------//
             //-----------------Script-Master-----------------//
             //-----------------------------------------------//
-            Dictionary<string, dynamic> ScripMasterResponse = superrApi.ScripMaster(
+            Dictionary<string, dynamic> ScripMasterResponse = aceApi.ScripMaster(
                 exchange: "NSE"
             );
 
