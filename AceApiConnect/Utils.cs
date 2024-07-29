@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System;
 
-namespace SuperrApiConnect
+namespace AceApiConnect
 {
     public class Utils
     {

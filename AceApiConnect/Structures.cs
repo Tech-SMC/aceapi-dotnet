@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace SuperrApiConnect
+namespace AceApiConnect
 {
     [StructLayout(LayoutKind.Sequential, Pack=1)] 
     public struct WSRequestHeader {

@@ -1,4 +1,4 @@
-namespace SuperrApiConnect
+namespace AceApiConnect
 {
     public class Ticker
     {

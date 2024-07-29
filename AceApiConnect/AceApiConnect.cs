@@ -1,12 +1,12 @@
 using System.Text;
 
-namespace SuperrApiConnect
+namespace AceApiConnect
 {
-     public class SuperrApi
+     public class AceApi
      {
          private string _apiKey;
          private string _apiSecret;
-         private string _root = "https://openapi.stoxkart.com";
+         private string _root = "https://openapi.smctradeonline.com";
          private string _accessToken;
 
          static User _user;
@@ -16,7 +16,7 @@ namespace SuperrApiConnect
             return _accessToken;
          }
 
-         public SuperrApi(string UserID, string Password, string API_Key, string API_Secret) {
+         public AceApi(string UserID, string Password, string API_Key, string API_Secret) {
             _user = new User(UserID, Password);
             _apiKey = API_Key;
             _apiSecret = API_Secret;

@@ -1,22 +1,22 @@
 # SupperAPI Connect .Net library
-This is the official .Net SDK for communicating with [Superr Trade Connect API](https://superrtrade.stoxkart.com).
+This is the official .Net SDK for communicating with [ACE Connect API](https://openapi.smctradeonline.com).
 
-The Superr API is a powerful & a set of REST-like HTTP APIs through which you can fetch live/historical data, automate your trading strategies, and monitor your portfolio in real time. An ApiKey and secret_key pair is issued that allows you to connect to the server. You have to register a redirect url where you will be sent after the login.
+The ACE API is a powerful & a set of REST-like HTTP APIs through which you can fetch live/historical data, automate your trading strategies, and monitor your portfolio in real time. An ApiKey and secret_key pair is issued that allows you to connect to the server. You have to register a redirect url where you will be sent after the login.
 
-[StoxKart India Pvt. Ltd.](https://www.stoxkart.com) &copy; 2023. Licensed under the [MIT License](/license/).
+[SMC Global Securities Ltd.](https://www.smctradeonline.com/) &copy; 2023. Licensed under the [MIT License](/license/).
 
 ## Documentation
 
-* [HTTP API](https://developers.stoxkart.com/api-documentation)
+* [HTTP API](https://smcaceapi.smctradeonline.com/api-documentation)
 
 
 ## Getting started
 ```csharp
 // Import library
-using SuperrApiConnect;
+using AceApiConnect;
 
-// Initialize SuperrApiConnect using user_id, password, ApiKey and ApiSecret.
-SuperrApi superrApi = new SuperrApi(UserID, password, API_Key, API_Secret);
+// Initialize AceApiConnect using user_id, password, ApiKey and ApiSecret.
+AceApi aceApi = new AceApi(UserID, password, API_Key, API_Secret);
 
 // LoginAndSetAccessToken will do the following work:
 // => fetch the login url and use the credentials provided while Initializing.
@@ -26,10 +26,10 @@ SuperrApi superrApi = new SuperrApi(UserID, password, API_Key, API_Secret);
 // Any failure in any of the step will return false and set the status as failure.
 // In case of failure the programme will EXIT.
 
-bool status = superrApi.LoginAndSetAccessToken();
+bool status = aceApi.LoginAndSetAccessToken();
 
 // Example call for functions like "PlaceOrder" that returns Dictionary
-Dictionary<string, dynamic> PlaceOrderResponse =  superrApi.PlaceOrder(
+Dictionary<string, dynamic> PlaceOrderResponse =  aceApi.PlaceOrder(
                                                                         variety: "NORMAL",
                                                                         action: "BUY",
                                                                         exchange: "NSE",
@@ -48,7 +48,7 @@ Dictionary<string, dynamic> PlaceOrderResponse =  superrApi.PlaceOrder(
 Console.WriteLine("Order_ID ::" + PlaceOrderResponse["data"]["order_id"]);
 
 ```
-For more examples, take a look at [Program.cs](https://github.com/StoxKart-Tech/SuperrApi-DotNet/blob/main/SuperrApiConnectHelper/SuperrApiConnectHelper.cs) of **SuperrApiConnectHelper** project in this repository.
+For more examples, take a look at [Program.cs](https://github.com/Tech-SMC/aceapi-dotnet/blob/main/AceApiConnectHelper/AceApiConnectHelper.cs) of **AceApiConnectHelper** project in this repository.
 
 ## WebSocket live streaming data
 
@@ -70,4 +70,4 @@ ticker.Subscribe(Tokens: new String[] { "NSE_CASH:11536", "NSE_CASH:1594" }, Con
 
 ```
 
-For more details about different mode of quotes and subscribing for them, take a look at **SuperrApiConnectHelper** project in this repository and [SuperrApi Connect HTTP API documentation](https://developers.stoxkart.com/api-documentation).
+For more details about different mode of quotes and subscribing for them, take a look at **AceApiConnectHelper** project in this repository and [AceApi Connect HTTP API documentation](https://smcaceapi.smctradeonline.com/api-documentation).
